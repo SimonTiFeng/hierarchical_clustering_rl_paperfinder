@@ -5,6 +5,7 @@ from rl_agent import ClusteringEnv
 from stable_baselines3 import PPO
 from stable_baselines3.common.callbacks import CheckpointCallback
 from sklearn.feature_extraction.text import TfidfVectorizer
+os.environ["OMP_NUM_THREADS"] = "1"
 
 def read_processed_text(folder_path):
     documents = []
@@ -36,14 +37,12 @@ def main():
         vectorizer = TfidfVectorizer(stop_words="english")
         tfidf_matrix = vectorizer.fit_transform(documents)
         features = tfidf_matrix.toarray()
-    
     env = ClusteringEnv(features, init_k=3, desired_range=(2,4), max_steps=20, max_clusters=10)
-    callback = CheckpointCallback(save_freq=5000, save_path="./models/", name_prefix="ppo_clustering")
+    checkpoint_callback = CheckpointCallback(save_freq=5000, save_path="./models/", name_prefix="ppo_clustering")
     model = PPO("MlpPolicy", env, verbose=1)
-    model.learn(total_timesteps=10000, callback=callback)
+    model.learn(total_timesteps=10000, callback=checkpoint_callback)
     model.save("ppo_clustering_final")
     print("Model saved as 'ppo_clustering_final.zip'")
-    
     obs = env.reset()
     total_reward = 0
     for _ in range(env.max_steps):

@@ -14,7 +14,6 @@ class ClusteringSystem:
         self.inertia = None
         self.silhouette = None
         self._run_kmeans()
-    
     def _run_kmeans(self):
         kmeans = KMeans(n_clusters=self.k, random_state=self.random_state, n_init="auto")
         self.labels = kmeans.fit_predict(self.data)
@@ -24,7 +23,6 @@ class ClusteringSystem:
             self.silhouette = silhouette_score(self.data, self.labels)
         else:
             self.silhouette = -1
-    
     def update_clusters(self, new_labels, new_centers):
         self.labels = new_labels
         self.centers = new_centers
@@ -34,7 +32,6 @@ class ClusteringSystem:
             self.silhouette = silhouette_score(self.data, self.labels)
         else:
             self.silhouette = -1
-
     def merge_clusters(self, cluster_idx1, cluster_idx2):
         mask1 = (self.labels == cluster_idx1)
         mask2 = (self.labels == cluster_idx2)
@@ -57,7 +54,6 @@ class ClusteringSystem:
             new_labels[i] = mapping[new_labels[i]]
         self.update_clusters(new_labels, np.array(new_centers))
         return self.labels, self.centers
-    
     def split_cluster(self, cluster_idx):
         mask = (self.labels == cluster_idx)
         cluster_data = self.data[mask]
@@ -92,10 +88,8 @@ class ClusteringSystem:
                 new_labels[i] = new_label_mapping[new_labels[i]]
         self.update_clusters(new_labels, np.array(new_centers))
         return self.labels, self.centers
-
     def get_state(self):
         return {"n_clusters": self.k, "inertia": self.inertia, "silhouette": self.silhouette}
-
     def get_extended_state(self, max_clusters=10):
         n_samples = self.data.shape[0]
         global_center = np.mean(self.data, axis=0)
@@ -115,7 +109,6 @@ class ClusteringSystem:
                 features.extend([0, 0, 0, 0, 0])
         global_state = [self.inertia, self.silhouette]
         return np.array(features + global_state)
-    
     def get_reduced_data(self, method="PCA"):
         if method == "PCA":
             reducer = PCA(n_components=2)
@@ -129,3 +122,6 @@ class ClusteringSystem:
 if __name__ == "__main__":
     from sklearn.datasets import make_blobs
     data, _ = make_blobs(n_samples=300, centers=4, cluster_std=0.6, random_state=0)
+    cs = ClusteringSystem(data, init_k=4)
+    print(cs.get_state())
+    print(cs.get_extended_state())

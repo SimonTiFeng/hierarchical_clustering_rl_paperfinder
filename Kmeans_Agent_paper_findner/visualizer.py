@@ -45,4 +45,4 @@ def visualize_clustering(data, labels, centers, method="PCA"):
     plt.show()
 
 if __name__ == "__main__":
-    print("Call visualizer functions from the main process.")
+    print("Run visualizer functions from main process.")
